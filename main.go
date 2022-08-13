@@ -39,6 +39,14 @@ func (r room) String() string {
 
 var vrbo = [...]room{M, K, K, Q, Q, Q, Q, Q, Q, B, B, B, B, B, L}
 
+var roomCosts = map[room]int{
+	M: 7852,
+	K: 7416,
+	Q: 5235,
+	B: 4798,
+	L: 4362,
+}
+
 type guy struct {
 	name          string
 	roomPrefScore map[room]int
@@ -80,18 +88,27 @@ func main() {
 
 	// brute force search for the best assignment
 	maxScore := 0
+	maxCost := 0
 	bestAssignments := make([]int, len(guys))
-	for n := 0; n < 1000000; n++ {
+	for n := 0; n < 10000000; n++ {
 		score := 0
+		cost := 0
 		assignments := rand.Perm(len(guys))
 		for i := range guys {
 			room := vrbo[assignments[i]]
 			score += guys[i].roomPrefScore[room]
+			cost += roomCosts[room]
 		}
 		if score > maxScore {
 			maxScore = score
+			maxCost = cost
 			copy(bestAssignments, assignments)
-			fmt.Println("New best score:", maxScore, "n:", n)
+			fmt.Println("New best score:", maxScore, "cost:", cost, "n:", n)
+		} else if score == maxScore && cost > maxCost {
+			maxScore = score
+			maxCost = cost
+			copy(bestAssignments, assignments)
+			fmt.Println("New best score (cost):", maxScore, "cost:", cost, "n:", n)
 		}
 	}
 
